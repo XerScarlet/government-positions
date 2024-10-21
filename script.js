@@ -26,3 +26,36 @@ function pickPosition(position) {
         resultText.textContent = `You've successfully taken the position of ${position.replace('_', ' ')}!`;
     }
 }
+
+// Add an issue to the specific branch's issues list
+function addIssue(event, branch) {
+    event.preventDefault();
+    const issueInput = document.getElementById('issue');
+    const newIssue = issueInput.value;
+
+    let issues = JSON.parse(localStorage.getItem(branch + '_issues')) || [];
+    issues.push(newIssue);
+    localStorage.setItem(branch + '_issues', JSON.stringify(issues));
+
+    issueInput.value = '';
+    displayIssues(branch);
+}
+
+// Display the issues for a specific branch
+function displayIssues(branch) {
+    const issuesList = document.getElementById('issuesList');
+    const issues = JSON.parse(localStorage.getItem(branch + '_issues')) || [];
+    issuesList.innerHTML = '';
+
+    issues.forEach(issue => {
+        const listItem = document.createElement('li');
+        listItem.textContent = issue;
+        issuesList.appendChild(listItem);
+    });
+}
+
+// Call displayIssues when the page loads, to populate the list of issues
+document.addEventListener('DOMContentLoaded', () => {
+    const branch = location.pathname.split('/').pop().split('.')[0]; // Get the branch name from the URL
+    displayIssues(branch);
+});
