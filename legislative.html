@@ -26,6 +26,18 @@
         </ul>
         <p id="result"></p>
     </section>
+
+    <section>
+        <h2>Legislative Branch Issues Board</h2>
+        <form id="issueForm" onsubmit="addIssue(event, 'legislative')">
+            <label for="issue">Submit an Issue:</label>
+            <input type="text" id="issue" required>
+            <button type="submit">Submit</button>
+        </form>
+        <h3>Submitted Issues:</h3>
+        <ul id="issuesList"></ul>
+    </section>
+
     <script src="script.js"></script>
 </body>
 </html>
