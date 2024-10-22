@@ -1,56 +1,36 @@
-// Initialize available positions if they don't already exist in localStorage
-if (!localStorage.getItem('positions')) {
-    localStorage.setItem('positions', JSON.stringify({
-        president: false,
-        vice_president: false,
-        cabinet_member: false,
-        senator: false,
-        representative: false,
-        house_speaker: false,
-        supreme_court_justice: false,
-        chief_justice: false,
-        district_judge: false
-    }));
-}
+// Reference to the Firebase database
+const dbRef = firebase.database().ref();
 
-// Function to pick a position
-function pickPosition(position) {
-    const positions = JSON.parse(localStorage.getItem('positions'));
-    const resultText = document.getElementById('result');
-
-    if (positions[position]) {
-        resultText.textContent = "This position is already taken! Pick another one.";
-    } else {
-        positions[position] = true;
-        localStorage.setItem('positions', JSON.stringify(positions));
-        resultText.textContent = `You've successfully taken the position of ${position.replace('_', ' ')}!`;
-    }
-}
-
-// Add an issue to the specific branch's issues list
+// Add an issue to the Firebase database for a specific branch
 function addIssue(event, branch) {
     event.preventDefault();
     const issueInput = document.getElementById('issue');
     const newIssue = issueInput.value;
 
-    let issues = JSON.parse(localStorage.getItem(branch + '_issues')) || [];
-    issues.push(newIssue);
-    localStorage.setItem(branch + '_issues', JSON.stringify(issues));
+    // Push the new issue to Firebase under the branch
+    dbRef.child(branch + '_issues').push({
+        issue: newIssue
+    });
 
     issueInput.value = '';
     displayIssues(branch);
 }
 
-// Display the issues for a specific branch
+// Display the issues for a specific branch by retrieving data from Firebase
 function displayIssues(branch) {
     const issuesList = document.getElementById('issuesList');
-    const issues = JSON.parse(localStorage.getItem(branch + '_issues')) || [];
     issuesList.innerHTML = '';
 
-    issues.forEach(issue => {
-        const listItem = document.createElement('li');
-        listItem.textContent = issue;
-        issuesList.appendChild(listItem);
+    // Fetch issues from Firebase and display them
+    dbRef.child(branch + '_issues').on('value', (snapshot) => {
+        const issues = snapshot.val();
+        issuesList.innerHTML = ''; // Clear the list before repopulating
+
+        for (let id in issues) {
+            const listItem = document.createElement('li');
+            listItem.textContent = issues[id].issue;
+            issuesList.appendChild(listItem);
+        }
     });
 }
 
